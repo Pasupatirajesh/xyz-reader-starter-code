@@ -1,5 +1,7 @@
 package com.example.xyzreader.ui;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,8 +12,9 @@ import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
@@ -41,7 +44,7 @@ import butterknife.ButterKnife;
  * touched, lead to a {@link ArticleDetailActivity} representing item details. On tablets, the
  * activity presents a grid of items as cards.
  */
-public class ArticleListActivity extends ActionBarActivity implements
+public class ArticleListActivity extends FragmentActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = ArticleListActivity.class.toString();
@@ -55,29 +58,60 @@ public class ArticleListActivity extends ActionBarActivity implements
     @BindView(R.id.recycler_view)
     RecyclerView mRecyclerView;
 
+    public static int mPosition;
+
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
     // Use default locale format
     private SimpleDateFormat outputFormat = new SimpleDateFormat();
     // Most time functions can only handle 1902 - 2037
     private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2,1,1);
 
+    private boolean mTwoPane;
+
+
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_list);
-        ButterKnife.bind(this);
+        FragmentManager fm = getFragmentManager();
+            Fragment fragment = fm.findFragmentById(R.id.frag_id);
+            if(fragment==null)
+            {
+                fragment = new TestFragment();
+//                fragment = ArticleDetailFragment.newInstance(cursor.getLong(ArticleLoader.Query._ID));
+                fm.beginTransaction().add(R.id.frag_id, fragment).commit();
+            }
 
-        setSupportActionBar(mToolbar);
 
-        getLoaderManager().initLoader(0, null, this);
 
-        if (savedInstanceState == null) {
-            refresh();
+        if(findViewById(R.id.article_list_single_pane)!=null)
+        {
+            mTwoPane = true;
+            ButterKnife.bind(this);
+            getLoaderManager().initLoader(0,null,this);
+            if (savedInstanceState== null)
+            {
+                refresh();
+            }
+
+        } else
+        {
+            mTwoPane = false;
+            ButterKnife.bind(this);
+            getLoaderManager().initLoader(0,null,this);
+            if (savedInstanceState== null)
+            {
+                refresh();
+            }
         }
+
+
     }
 
     private void refresh() {
+
         startService(new Intent(this, UpdaterService.class));
     }
 
@@ -119,11 +153,26 @@ public class ArticleListActivity extends ActionBarActivity implements
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         Adapter adapter = new Adapter(cursor);
         adapter.setHasStableIds(true);
-        mRecyclerView.setAdapter(adapter);
-        int columnCount = getResources().getInteger(R.integer.list_column_count);
-        StaggeredGridLayoutManager sglm =
-                new StaggeredGridLayoutManager(columnCount, StaggeredGridLayoutManager.VERTICAL);
-        mRecyclerView.setLayoutManager(sglm);
+        if(mTwoPane) {
+            int columnCount = 2;
+            StaggeredGridLayoutManager sglm =
+                    new StaggeredGridLayoutManager(columnCount, StaggeredGridLayoutManager.VERTICAL);
+            mRecyclerView.setAdapter(adapter);
+            mRecyclerView.setLayoutManager(sglm);
+
+//            FragmentManager fm = getFragmentManager();
+//            Fragment fragment = fm.findFragmentById(R.id.listActivityFragment);
+//            if(fragment==null)
+//            {
+//                fragment = ArticleDetailFragment.newInstance(cursor.getLong(ArticleLoader.Query._ID));
+//                fm.beginTransaction().add(R.id.listActivityFragment, fragment).commit();
+//            }
+
+        }else {
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+            mRecyclerView.setAdapter(adapter);
+            mRecyclerView.setLayoutManager(linearLayoutManager);
+        }
     }
 
     @Override
@@ -132,7 +181,8 @@ public class ArticleListActivity extends ActionBarActivity implements
     }
 
     private class Adapter extends RecyclerView.Adapter<ViewHolder> {
-        private Cursor mCursor;
+        public Cursor mCursor;
+
 
         public Adapter(Cursor cursor) {
             mCursor = cursor;
@@ -143,7 +193,6 @@ public class ArticleListActivity extends ActionBarActivity implements
             mCursor.moveToPosition(position);
             return mCursor.getLong(ArticleLoader.Query._ID);
         }
-
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = getLayoutInflater().inflate(R.layout.list_item_article, parent, false);
@@ -153,6 +202,7 @@ public class ArticleListActivity extends ActionBarActivity implements
                 public void onClick(View view) {
                     startActivity(new Intent(Intent.ACTION_VIEW,
                             ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))));
+
                 }
             });
             return vh;
@@ -193,6 +243,9 @@ public class ArticleListActivity extends ActionBarActivity implements
                     mCursor.getString(ArticleLoader.Query.THUMB_URL),
                     ImageLoaderHelper.getInstance(ArticleListActivity.this).getImageLoader());
             holder.thumbnailView.setAspectRatio(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
+
+            mPosition = position;
+            Log.i("mPos", ""+mPosition);
         }
 
         @Override
@@ -201,10 +254,14 @@ public class ArticleListActivity extends ActionBarActivity implements
         }
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+
+
+    public static class ViewHolder extends RecyclerView.ViewHolder{
         public DynamicHeightNetworkImageView thumbnailView;
         public TextView titleView;
         public TextView subtitleView;
+
+
 
         public ViewHolder(View view) {
             super(view);
@@ -212,5 +269,6 @@ public class ArticleListActivity extends ActionBarActivity implements
             titleView = (TextView) view.findViewById(R.id.article_title);
             subtitleView = (TextView) view.findViewById(R.id.article_subtitle);
         }
+
     }
 }

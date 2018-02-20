@@ -50,14 +50,11 @@ public class ArticleDetailFragment extends Fragment implements
 
     public static final String ARG_ITEM_ID = "item_id";
 
-
     Unbinder mUnbinder;
 
     private Cursor mCursor;
 
     private long mItemId;
-
-
 
     private View mRootView;
 
@@ -79,6 +76,7 @@ public class ArticleDetailFragment extends Fragment implements
 
     @BindView(R.id.nestedScrollView)
     NestedScrollView mNestedScrollView;
+
     private boolean mIsCard = false;
 
     private int oldScrollYPostion = 0;
@@ -142,6 +140,7 @@ public class ArticleDetailFragment extends Fragment implements
         mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
 
         mUnbinder = ButterKnife.bind(this, mRootView);
+
 
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override

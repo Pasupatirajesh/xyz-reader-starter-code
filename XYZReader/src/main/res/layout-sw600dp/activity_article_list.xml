@@ -1,0 +1,78 @@
+<android.support.constraint.ConstraintLayout android:id="@+id/article_list_single_pane"
+                                             xmlns:android="http://schemas.android.com/apk/res/android"
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             xmlns:tools="http://schemas.android.com/tools"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent">
+
+
+    <FrameLayout
+        android:id="@+id/frame_layout"
+        android:layout_width="500dp"
+        android:layout_height="?attr/actionBarSize">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_gravity="top"
+            android:layout_marginBottom="80dp"
+            android:layout_marginTop="8dp"
+            android:background="?attr/colorPrimaryDark"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark"
+            app:contentInsetStart="72dp"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Dark">
+
+            <ImageView
+                android:id="@+id/image_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:contentDescription="@string/app_name"
+                android:src="@drawable/logo"
+                app:layout_collapseMode="parallax"/>
+
+        </android.support.v7.widget.Toolbar>
+
+    </FrameLayout>
+
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_layout"
+        android:layout_width="300dp"
+        android:layout_height="match_parent"
+        android:layout_below="@id/frame_layout">
+
+
+        <!---->
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="313dp"
+            android:layout_height="704dp"
+            android:paddingTop="?attr/actionBarSize"
+            tools:layout_editor_absoluteY="0dp"/>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+    <fragment
+        android:layout_width="500dp"
+        android:layout_height="match_parent"
+        android:layout="@layout/test_fragment"
+        android:id="@+id/testfragment"/>
+
+
+    <!--<fragment-->
+        <!--android:id="@+id/listActivityFragment"-->
+        <!--android:layout_width="500dp"-->
+        <!--android:layout_height="match_parent"-->
+        <!--layout="@layout/fragment_layout_land"-->
+        <!--app:layout_constraintEnd_toEndOf="parent"-->
+        <!--app:layout_constraintLeft_toRightOf="@id/swipe_refresh_layout"-->
+        <!--app:layout_constraintTop_toTopOf="@id/article_list_single_pane"/>-->
+
+
+
+
+</android.support.constraint.ConstraintLayout>
+
+

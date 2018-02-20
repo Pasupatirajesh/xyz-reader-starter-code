@@ -59,6 +59,8 @@ public class ArticleDetailActivity extends AppCompatActivity
         ButterKnife.bind(this);
         ButterKnife.setDebug(true);
 
+
+
         getLoaderManager().initLoader(0, null, this);
 
         mPagerAdapter = new MyPagerAdapter(getFragmentManager());
