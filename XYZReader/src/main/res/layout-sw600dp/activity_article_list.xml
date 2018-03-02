@@ -2,22 +2,22 @@
                                              xmlns:android="http://schemas.android.com/apk/res/android"
                                              xmlns:app="http://schemas.android.com/apk/res-auto"
                                              xmlns:tools="http://schemas.android.com/tools"
+                                             android:fitsSystemWindows="true"
                                              android:layout_width="match_parent"
                                              android:layout_height="match_parent">
 
 
     <FrameLayout
         android:id="@+id/frame_layout"
-        android:layout_width="500dp"
+        android:layout_width="300dp"
         android:layout_height="?attr/actionBarSize">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="100dp"
             android:layout_gravity="top"
             android:layout_marginBottom="80dp"
-            android:layout_marginTop="8dp"
             android:background="?attr/colorPrimaryDark"
             android:theme="@style/ThemeOverlay.AppCompat.Dark"
             app:contentInsetStart="72dp"
@@ -43,8 +43,6 @@
         android:layout_height="match_parent"
         android:layout_below="@id/frame_layout">
 
-
-        <!---->
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="313dp"
@@ -54,24 +52,11 @@
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
-    <fragment
-        android:layout_width="500dp"
+    <FrameLayout
+        android:id="@+id/frag_id"
+        android:layout_width="695dp"
         android:layout_height="match_parent"
-        android:layout="@layout/test_fragment"
-        android:id="@+id/testfragment"/>
-
-
-    <!--<fragment-->
-        <!--android:id="@+id/listActivityFragment"-->
-        <!--android:layout_width="500dp"-->
-        <!--android:layout_height="match_parent"-->
-        <!--layout="@layout/fragment_layout_land"-->
-        <!--app:layout_constraintEnd_toEndOf="parent"-->
-        <!--app:layout_constraintLeft_toRightOf="@id/swipe_refresh_layout"-->
-        <!--app:layout_constraintTop_toTopOf="@id/article_list_single_pane"/>-->
-
-
-
+        app:layout_constraintLeft_toRightOf="@id/swipe_refresh_layout"/>
 
 </android.support.constraint.ConstraintLayout>
 

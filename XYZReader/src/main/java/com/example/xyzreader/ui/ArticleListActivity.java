@@ -1,7 +1,7 @@
 package com.example.xyzreader.ui;
 
 import android.app.Fragment;
-import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -23,12 +23,14 @@ import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
 import com.example.xyzreader.data.ItemsContract;
 import com.example.xyzreader.data.UpdaterService;
+import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -59,6 +61,7 @@ public class ArticleListActivity extends FragmentActivity implements
     RecyclerView mRecyclerView;
 
     public static int mPosition;
+    private Adapter mAdapter;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
     // Use default locale format
@@ -68,6 +71,7 @@ public class ArticleListActivity extends FragmentActivity implements
 
     private boolean mTwoPane;
 
+    private Fragment fragment;
 
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -75,39 +79,22 @@ public class ArticleListActivity extends FragmentActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_list);
-        FragmentManager fm = getFragmentManager();
-            Fragment fragment = fm.findFragmentById(R.id.frag_id);
-            if(fragment==null)
-            {
-                fragment = new TestFragment();
-//                fragment = ArticleDetailFragment.newInstance(cursor.getLong(ArticleLoader.Query._ID));
-                fm.beginTransaction().add(R.id.frag_id, fragment).commit();
-            }
 
-
-
-        if(findViewById(R.id.article_list_single_pane)!=null)
-        {
+        if(findViewById(R.id.article_list_single_pane)!=null) {
             mTwoPane = true;
             ButterKnife.bind(this);
             getLoaderManager().initLoader(0,null,this);
-            if (savedInstanceState== null)
-            {
+            if (savedInstanceState== null){
                 refresh();
             }
-
-        } else
-        {
+        } else {
             mTwoPane = false;
             ButterKnife.bind(this);
             getLoaderManager().initLoader(0,null,this);
-            if (savedInstanceState== null)
-            {
+            if (savedInstanceState== null){
                 refresh();
             }
         }
-
-
     }
 
     private void refresh() {
@@ -151,26 +138,17 @@ public class ArticleListActivity extends FragmentActivity implements
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        Adapter adapter = new Adapter(cursor);
-        adapter.setHasStableIds(true);
-        if(mTwoPane) {
+        mAdapter = new Adapter(cursor);
+        mAdapter.setHasStableIds(true);
+        if(!mTwoPane) {
             int columnCount = 2;
             StaggeredGridLayoutManager sglm =
                     new StaggeredGridLayoutManager(columnCount, StaggeredGridLayoutManager.VERTICAL);
-            mRecyclerView.setAdapter(adapter);
+            mRecyclerView.setAdapter(mAdapter);
             mRecyclerView.setLayoutManager(sglm);
-
-//            FragmentManager fm = getFragmentManager();
-//            Fragment fragment = fm.findFragmentById(R.id.listActivityFragment);
-//            if(fragment==null)
-//            {
-//                fragment = ArticleDetailFragment.newInstance(cursor.getLong(ArticleLoader.Query._ID));
-//                fm.beginTransaction().add(R.id.listActivityFragment, fragment).commit();
-//            }
-
         }else {
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-            mRecyclerView.setAdapter(adapter);
+            mRecyclerView.setAdapter(mAdapter);
             mRecyclerView.setLayoutManager(linearLayoutManager);
         }
     }
@@ -182,7 +160,6 @@ public class ArticleListActivity extends FragmentActivity implements
 
     private class Adapter extends RecyclerView.Adapter<ViewHolder> {
         public Cursor mCursor;
-
 
         public Adapter(Cursor cursor) {
             mCursor = cursor;
@@ -197,14 +174,24 @@ public class ArticleListActivity extends FragmentActivity implements
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = getLayoutInflater().inflate(R.layout.list_item_article, parent, false);
             final ViewHolder vh = new ViewHolder(view);
+
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    startActivity(new Intent(Intent.ACTION_VIEW,
-                            ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))));
-
+                    if(mTwoPane) {
+                        mPosition = vh.getAdapterPosition();
+                        fragment = ArticleDetailFragment.newInstance(getItemId(mPosition));
+                        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                        transaction.replace(R.id.frag_id, fragment);
+                        transaction.addToBackStack(null);
+                        transaction.commit();
+                    } else {
+                        startActivity(new Intent(Intent.ACTION_VIEW,
+                                ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))));
+                    }
                 }
             });
+
             return vh;
         }
 
@@ -239,13 +226,11 @@ public class ArticleListActivity extends FragmentActivity implements
                         + "<br/>" + " by "
                         + mCursor.getString(ArticleLoader.Query.AUTHOR)));
             }
-            holder.thumbnailView.setImageUrl(
-                    mCursor.getString(ArticleLoader.Query.THUMB_URL),
-                    ImageLoaderHelper.getInstance(ArticleListActivity.this).getImageLoader());
-            holder.thumbnailView.setAspectRatio(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
+            Picasso.with(getApplicationContext())
+                    .load(mCursor.getString(ArticleLoader.Query.THUMB_URL))
+                    .fit().centerCrop()
+                    .into(holder.thumbnailView);
 
-            mPosition = position;
-            Log.i("mPos", ""+mPosition);
         }
 
         @Override
@@ -257,7 +242,7 @@ public class ArticleListActivity extends FragmentActivity implements
 
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
-        public DynamicHeightNetworkImageView thumbnailView;
+        public ImageView thumbnailView;
         public TextView titleView;
         public TextView subtitleView;
 
@@ -265,10 +250,11 @@ public class ArticleListActivity extends FragmentActivity implements
 
         public ViewHolder(View view) {
             super(view);
-            thumbnailView = (DynamicHeightNetworkImageView) view.findViewById(R.id.thumbnail);
+            thumbnailView = (ImageView) view.findViewById(R.id.thumbnail);
             titleView = (TextView) view.findViewById(R.id.article_title);
             subtitleView = (TextView) view.findViewById(R.id.article_subtitle);
         }
+
 
     }
 }

@@ -3,6 +3,7 @@
                                                  xmlns:tools="http://schemas.android.com/tools"
                                                  android:layout_width="match_parent"
                                                  android:layout_height="match_parent"
+                                                 android:fitsSystemWindows="true"
                                                  tools:ignore="MergeRootFrame">
 
     <android.support.design.widget.AppBarLayout
@@ -24,7 +25,6 @@
             app:expandedTitleMarginStart="72dp"
             app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
-
             <ImageView
                 android:id="@+id/photo"
                 android:layout_width="match_parent"
@@ -33,15 +33,13 @@
                 android:fitsSystemWindows="true"
                 android:maxHeight="300dp"
                 android:scaleType="centerCrop"
-                app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"
-                app:layout_collapseMode="parallax"/>
-
-
+                app:layout_collapseMode="parallax"
+                app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"/>
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
+                android:layout_height="100dp"
                 android:background="?attr/colorPrimaryDark"
                 android:layout_gravity="bottom"
                 android:theme="@style/ThemeOverlay.AppCompat.Dark"
@@ -50,47 +48,33 @@
                 app:layout_scrollFlags="scroll|enterAlways"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Dark">
 
-                <android.support.constraint.ConstraintLayout
-                    android:id="@+id/constraint_layout"
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-
+                    android:layout_height="match_parent"
+                    android:layout_below="@id/toolbar"
+                    android:fitsSystemWindows="true">
                     <TextView
                         android:id="@+id/article_title"
-                        style="?android:attr/textAppearanceMedium"
+                        style="?android:attr/textAppearanceSmall"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_below="@id/constraint_layout"
+                        android:paddingBottom="@dimen/detail_metabar_title_bottom_padding"
                         android:fontFamily="sans-serif-condensed"
-                        android:lineSpacingMultiplier="0.9"
-                        android:paddingBottom="@dimen/detail_metabar_vert_padding"
-                        android:paddingTop="@dimen/detail_metabar_title_bottom_padding"
-                        android:textColor="#000000"
+                        android:textColor="#fff"
+                        android:textStyle="bold"
                         android:textSize="@dimen/detail_title_text_size"
-                        android:textStyle="bold"/>
+                        android:lineSpacingMultiplier="0.9" />
 
                     <TextView
                         android:id="@+id/article_by_line"
-                        style="?android:attr/textAppearanceMedium"
+                        style="?android:attr/textAppearanceSmall"
                         android:layout_width="wrap_content"
-                        android:layout_height="41dp"
-                        android:layout_below="@id/article_title"
-                        android:layout_marginEnd="8dp"
-                        android:layout_marginStart="8dp"
-                        android:fontFamily="sans-serif-condensed"
-                        android:lineSpacingMultiplier="0.9"
-                        android:paddingBottom="@dimen/detail_metabar_vert_padding"
-                        android:paddingTop="@dimen/detail_metabar_title_bottom_padding"
-                        android:textColor="#000000"
-                        android:textSize="@dimen/detail_title_text_size"
-                        android:textStyle="bold"
-                        app:layout_constraintBottom_toBottomOf="@+id/article_title"
-                        app:layout_constraintTop_toBottomOf="@id/article_title"
-                        tools:layout_editor_absoluteY="76dp"/>
+                        android:layout_height="wrap_content"
+                        android:textColor="#8fff"
+                        android:layout_below="@id/article_title"/>
 
 
-                </android.support.constraint.ConstraintLayout>
+                </RelativeLayout>
 
             </android.support.v7.widget.Toolbar>
 
